@@ -1,10 +1,26 @@
 from picamera import PiCamera
-from time import sleep
+from datetime import datetime
 
-camera = PiCamera()
+"""
+Connect to camera
+Take a picture
+Save picture locally
+Send the picture via API request to a url
+"""
 
-camera.start_preview()
-sleep(5)
-camera.stop_preview()
 
-camera.capture('/home/pi/Desktop/image.jpg')
+def format_time(dt):
+    return dt.strftime("%Y.%m.%d.%H")
+
+
+def dt_str():
+    return format_time(datetime.now())
+
+
+if __name__ == "__main__":
+
+    camera = PiCamera()
+
+    save_path = "./images/" + dt_str()
+
+    camera.capture(save_path)
