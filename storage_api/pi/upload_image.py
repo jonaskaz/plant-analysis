@@ -1,8 +1,10 @@
 from datetime import datetime
-import subprocess
 import requests
 import os
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 base_url = os.environ.get("STORAGE_URL")
 
@@ -16,8 +18,9 @@ def dt_str():
 
 
 def capture(save_path):
-    p = subprocess.run("raspistill -o", save_path)
-    return p
+    os.system(
+        f"raspistill -o {save_path}",
+    )
 
 
 def upload(save_path):
