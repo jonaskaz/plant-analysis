@@ -30,7 +30,7 @@ def upload(save_path):
 
 
 def run():
-    save_path = "./images/" + dt_str()
+    save_path = "./images/" + dt_str() + ".jpeg"
     capture(save_path)
     print(f"Saved {save_path}")
     upload(save_path)
