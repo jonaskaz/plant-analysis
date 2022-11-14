@@ -1,12 +1,10 @@
-from picamera import PiCamera
 from datetime import datetime
+import subprocess
+import requests
+import os
 
-"""
-Connect to camera
-Take a picture
-Save picture locally
-Send the picture via API request to a url
-"""
+
+base_url = os.environ.get("STORAGE_URL")
 
 
 def format_time(dt):
@@ -14,13 +12,27 @@ def format_time(dt):
 
 
 def dt_str():
-    return format_time(datetime.now())
+    return format_time(datetime.utcnow())
+
+
+def capture(save_path):
+    p = subprocess.run("raspistill -o", save_path)
+    return p
+
+
+def upload(save_path):
+    url = base_url + "uploadfile/"
+    files = {"in_file": open(save_path, "rb")}
+    return requests.post(url, files=files)
+
+
+def run():
+    save_path = "./images/" + dt_str()
+    capture(save_path)
+    print(f"Saved {save_path}")
+    upload(save_path)
+    print(f"Uploaded {save_path}")
 
 
 if __name__ == "__main__":
-
-    camera = PiCamera()
-
-    save_path = "./images/" + dt_str()
-
-    camera.capture(save_path)
+    run()
