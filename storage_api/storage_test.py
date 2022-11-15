@@ -14,18 +14,19 @@ base_url = os.environ.get("STORAGE_URL")
 def post_image():
     url = base_url + "uploadfile/"
     files = {"in_file": open("./images/test.png", "rb")}
-    res = requests.post(url, files=files)
+    params = {"type": "side"}
+    res = requests.post(url, files=files, params=params)
     print(res.content)
 
 
 def get_image():
     url = base_url + "files/"
-    params = {"dt": datetime.utcnow()}
+    params = {"dt": datetime.utcnow(), "type": "side"}
     res = requests.get(url, params=params)
     img = Image.open(BytesIO(res.content))
     img.show()
 
 
 if __name__ == "__main__":
-    #post_image()
+    post_image()
     get_image()

@@ -26,11 +26,12 @@ def capture(save_path):
 def upload(save_path):
     url = base_url + "uploadfile/"
     files = {"in_file": open(save_path, "rb")}
-    return requests.post(url, files=files)
+    params = {"type": "top"}
+    return requests.post(url, files=files, params=params)
 
 
 def run():
-    save_path = "./images/" + dt_str() + ".jpeg"
+    save_path = "./images/top/" + dt_str() + ".jpeg"
     capture(save_path)
     print(f"Saved {save_path}")
     upload(save_path)
