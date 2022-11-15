@@ -26,7 +26,7 @@ def capture(save_path):
 def upload(save_path):
     url = base_url + "uploadfile/"
     files = {"in_file": open(save_path, "rb")}
-    params = {"type": "top"}
+    params = {"type": "side"}
     return requests.post(url, files=files, params=params)
 
 
