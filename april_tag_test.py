@@ -1,6 +1,10 @@
 import apriltag
 import argparse
 import cv2
+"""
+run this code using the following command:
+python3 april_tag_test.py --image images/test3.png 
+"""
 
 #construct the argument parser and parse the arguments 
 ap = argparse.ArgumentParser()
