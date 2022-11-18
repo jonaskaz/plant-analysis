@@ -5,6 +5,8 @@ import cv2
 run this code using the following command:
 python3 april_tag_test.py --image images/test3.png 
 """
+#constants
+april_tag_real_size = 15.5 #mm
 
 #construct the argument parser and parse the arguments 
 ap = argparse.ArgumentParser()
@@ -15,6 +17,8 @@ args = vars(ap.parse_args())
 # load the input image and convert it to grayscale
 print("[INFO] loading image...")
 image = cv2.imread(args["image"])
+image = cv2.resize(image, (image.shape[0]//2, image.shape[1]//2))
+print(image.shape)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # define the AprilTags detector options and then detect the AprilTags in the input image
@@ -47,5 +51,6 @@ for r in results:
 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 	print("[INFO] tag family: {}".format(tagFamily))
 # show the output image after AprilTag detection
-cv2.imshow("Image", image)
+display_image = cv2.resize(image, (image.shape[0]//2, image.shape[1]//2))
+cv2.imshow("Image", display_image)
 cv2.waitKey(0)
