@@ -12,7 +12,7 @@ class ImageHelper:
         self.image_bytes = bytes
         self.image = tempfile.NamedTemporaryFile()
 
-    def get(self, dt: datetime | None, im_type: str) -> bool:
+    def get(self, dt: datetime, im_type: str) -> bool:
         """
         Returns: true if image found, false otherwise
         """
