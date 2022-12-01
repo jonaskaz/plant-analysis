@@ -17,7 +17,9 @@
     ansible.builtin.pip:
       name: docker
   - name: Ensure service is enabled
-    ansible.builtin.command: service docker restart
+    ansible.builtin.service:
+      name: docker
+      state: started
   - name: Run docker container
     docker_container:
       name: comprobo-storage-api
