@@ -3,7 +3,7 @@ import argparse
 import cv2
 """
 run this code using the following command:
-python3 april_tag_test.py --image images/test3.png 
+python3 april_tag_test.py --image images/april-tag-test.jpeg 
 """
 #constants
 april_tag_real_size = 15.5 #mm
@@ -29,6 +29,7 @@ results = detector.detect(gray)
 print("[INFO] {} total AprilTags detected".format(len(results)))
 
 # loop over the AprilTag detection results
+tag_coordinates={}
 for r in results:
 	# extract the bounding box (x, y)-coordinates for the AprilTag
 	# and convert each of the (x, y)-coordinate pairs to integers
@@ -50,7 +51,12 @@ for r in results:
 	cv2.putText(image, tagFamily, (ptA[0], ptA[1] - 15),
 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 	print("[INFO] tag family: {}".format(tagFamily))
+	#find the tag id
+	id = r.tag_id
+	#log the tag
+	tag_coordinates[id] = [cX,cY]
 # show the output image after AprilTag detection
 display_image = cv2.resize(image, (image.shape[0]//2, image.shape[1]//2))
 cv2.imshow("Image", display_image)
+print(tag_coordinates)
 cv2.waitKey(0)
