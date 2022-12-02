@@ -9,7 +9,6 @@ import tempfile
 class ImageHelper:
     def __init__(self, base_url: str):
         self.url = base_url + "files/"
-        self.image_bytes = bytes
         self.image = tempfile.NamedTemporaryFile()
 
     def get(self, dt: datetime, im_type: str) -> bool:
@@ -27,13 +26,12 @@ class ImageHelper:
             print(res.status_code)
             print(res.content)
             return False
-        self.image_bytes = res.content
-        self.create_temp_image_file()
+        self.create_temp_image_file(res.content)
         return True
 
-    def create_temp_image_file(self):
+    def create_temp_image_file(self, image_bytes):
         self.image = tempfile.NamedTemporaryFile()
-        self.image.write(self.image_bytes)
+        self.image.write(image_bytes)
         self.image.seek(0)
 
     def show(self):
