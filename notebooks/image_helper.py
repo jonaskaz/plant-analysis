@@ -1,7 +1,5 @@
 from datetime import datetime
 import requests
-from PIL import Image
-from io import BytesIO
 import urllib.parse
 import tempfile
 
@@ -9,7 +7,7 @@ import tempfile
 class ImageHelper:
     def __init__(self, base_url: str):
         self.url = base_url + "files/"
-        self.image = tempfile.NamedTemporaryFile()
+        self.image = tempfile.NamedTemporaryFile(delete=False)
 
     def get(self, dt: datetime, im_type: str) -> bool:
         """
@@ -30,13 +28,9 @@ class ImageHelper:
         return True
 
     def create_temp_image_file(self, image_bytes):
-        self.image = tempfile.NamedTemporaryFile()
+        self.image = tempfile.NamedTemporaryFile(delete=False)
         self.image.write(image_bytes)
         self.image.seek(0)
-
-    def show(self):
-        img = Image.open(BytesIO(self.image_bytes))
-        img.show()
 
     def dt_from_string(self, dt_str: str) -> datetime:
         """
