@@ -1,13 +1,10 @@
 import os
 from dotenv import load_dotenv
-from datetime import datetime
 from plantcv import plantcv as pcv
-import matplotlib
 import numpy as np
 import traceback
-from datetime import date, timedelta
+from datetime import timedelta
 import sys
-
 sys.path.append("./notebooks")
 from image_helper import ImageHelper
 
@@ -23,6 +20,15 @@ pcv.params.debug = None
 
 
 def load_images(dt):
+    """
+    Params:
+    dt: Python datetime object
+
+    Retrieves images from side and top from the API
+    Crops the images to the plants
+    Returns:
+    side image cropped, top image cropped
+    """
     assert im_helper.get(dt, "side")
     side_img, path, filename = pcv.readimage(im_helper.image.name)
     side_crop_img = pcv.crop(img=side_img, x=300, y=470, h=1100, w=2800)
@@ -33,6 +39,15 @@ def load_images(dt):
 
 
 def filter_top_image(crop_img):
+    """
+    Params:
+    crop_img: top image cropped to plants
+
+    white balances and rotates the image then
+    converts the image to lab and selects the b channel
+    Returns:
+    the b channel of the corrected image
+    """
     corrected_img = pcv.white_balance(img=crop_img, mode="hist", roi=[280, 120, 5, 5])
     rotate_img = pcv.transform.rotate(corrected_img, 2, True)
     gray_img = pcv.rgb2gray_lab(rgb_img=rotate_img, channel="b")
@@ -40,12 +55,31 @@ def filter_top_image(crop_img):
 
 
 def filter_side_image(crop_img):
+    """
+    Params:
+    crop_img: top image cropped to plants
+
+    rotates the image and selects the l channel from
+    the lab colorspace
+    Returns:
+    the l channel of the rotated image
+    """
     rotate_img = pcv.transform.rotate(crop_img, -1, True)
     gray_img = pcv.rgb2gray_lab(rgb_img=rotate_img, channel="l")
     return gray_img
 
 
 def create_top_mask(gray_img):
+    """
+    Params:
+    gray_img: single channel top image
+
+    Creates a mask by applying binary thresholding to
+    selected areas in the image
+
+    Returns:
+    the mask, rois, roi_hierarchy
+    """
     thresh = pcv.threshold.binary(
         gray_img=gray_img, threshold=55, max_value=255, object_type="dark"
     )
@@ -63,6 +97,16 @@ def create_top_mask(gray_img):
 
 
 def create_side_mask(gray_img):
+    """
+    Params:
+    gray_img: single channel top image
+
+    Creates a mask by applying binary thresholding to
+    selected areas in the image
+
+    Returns:
+    the mask, rois, roi_hierarchy
+    """
     thresh = pcv.threshold.binary(
         gray_img=gray_img, threshold=80, max_value=255, object_type="light"
     )
@@ -89,6 +133,18 @@ def create_side_mask(gray_img):
 
 
 def analyze_shape(rois, roi_hierarchy, crop_img, mask):
+    """
+    Params:
+    rois: plant regions of interest
+    roi_hierarchy: order of the rois
+    crop_img: cropped plant image
+    mask: plant mask
+
+    Returns:
+    pixel heights: height of plants in pixels
+    pixel area: area of plants in pixels
+    img_copy: image with analysis drawings shown
+    """
     obj, obj_hierarchy = pcv.find_objects(img=crop_img, mask=mask)
     plant_ids = range(0, len(rois))
     img_copy = np.copy(crop_img)
@@ -131,7 +187,12 @@ def analyze_shape(rois, roi_hierarchy, crop_img, mask):
 
 def expand_pixel_heights(pixel_heights):
     """
-    Pretend pixel heights are captured for all plants
+    Params:
+    pixel_heights: list of pixel heights (3)
+    Fill in pixel heights to expand it to 6 plants
+
+    Returns:
+    pixel heights length 6
     """
     pixel_heights_adjusted = []
     for p in pixel_heights:
@@ -141,6 +202,13 @@ def expand_pixel_heights(pixel_heights):
 
 
 def reorder_areas_to_match_heights(pixel_areas):
+    """
+    Params:
+    pixel_areas: raw returned pixel areas from analyze plants
+
+    Returns:
+    Areas reordered to match output of expand_pixel_heights
+    """
     areas = []
     areas.append(pixel_areas[0])
     areas.append(pixel_areas[3])
@@ -153,7 +221,14 @@ def reorder_areas_to_match_heights(pixel_areas):
 
 def calculate_plant_size(pixel_heights, pixel_areas):
     """
+    Params:
+    pixel_heights: height in pixels of plants
+    pixel_areas: area of plants in pixels
+
     Calculate the real world size of the plants
+
+    Returns:
+    actual plant heights, actual plant areas
     """
     # constants
     hor_dist_front_plant = 125  # mm
@@ -186,6 +261,12 @@ def calculate_plant_size(pixel_heights, pixel_areas):
 
 
 def process_images(dt):
+    """
+    Run the full pipeline
+    Saves cropped images, masks, and analyzed images
+    Returns:
+    actual plant heights, actual plant areas
+    """
     try:
         side_image, top_image = load_images(dt)
         pcv.print_image(
@@ -219,6 +300,9 @@ def process_images(dt):
 
 
 def datetimerange(start_dt, end_dt):
+    """
+    Yields hourly datetimes between start_dt and end_dt
+    """
     delta = end_dt - start_dt
     hours_delta = delta.days * 24 + delta.seconds / 60 / 60
     for n in range(int(hours_delta)):
@@ -229,6 +313,7 @@ if __name__ == "__main__":
     import json
 
     # end '14/12/2022 4:08:18'
+    # Run the pipeline for a range of times and append results to a json file
     results_filepath = "results.json"
     start_dt = im_helper.dt_from_string("13/12/2022 0:08:18")
     end_dt = im_helper.dt_from_string("13/12/2022 0:08:18")
