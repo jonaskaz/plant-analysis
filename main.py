@@ -1,14 +1,15 @@
 import os
 from dotenv import load_dotenv
-from image_helper import ImageHelper
 from datetime import datetime
 from plantcv import plantcv as pcv
 import matplotlib
 import numpy as np
-import image_helper
 import traceback
 from datetime import date, timedelta
+import sys
 
+sys.path.append("./notebooks")
+from image_helper import ImageHelper
 
 load_dotenv()
 
@@ -230,7 +231,7 @@ if __name__ == "__main__":
     # end '14/12/2022 4:08:18'
     results_filepath = "results.json"
     start_dt = im_helper.dt_from_string("13/12/2022 0:08:18")
-    end_dt = im_helper.dt_from_string("14/12/2022 0:08:18")
+    end_dt = im_helper.dt_from_string("13/12/2022 0:08:18")
     plant_heights = {}
     plant_areas = {}
     for dt in datetimerange(start_dt, end_dt):
